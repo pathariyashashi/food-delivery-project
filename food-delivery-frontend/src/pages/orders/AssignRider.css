@@ -1,0 +1,362 @@
+/* =========================================
+   ASSIGN RIDER PAGE
+========================================= */
+
+.assign-rider-page {
+    min-height: 100vh;
+
+    background: #f7f7f7;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px;
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.assign-rider-card {
+    width: min(500px, 100%);
+
+    background: #ffffff;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 20px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================
+   BACK BUTTON
+========================================= */
+
+.assign-back-btn {
+    border: none;
+
+    background: transparent;
+
+    color: #f4511e;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    padding: 0;
+}
+
+.assign-back-btn:hover {
+    color: #d84315;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.assign-icon {
+    text-align: center;
+
+    font-size: 55px;
+
+    margin-top: 20px;
+
+    margin-bottom: 10px;
+}
+
+.assign-rider-card h1 {
+    text-align: center;
+
+    margin: 0;
+
+    font-size: 26px;
+
+    color: #222222;
+}
+
+.assign-order {
+    text-align: center;
+
+    color: #777777;
+
+    margin: 8px 0 30px;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   LABEL
+========================================= */
+
+.assign-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: #333333;
+}
+
+
+/* =========================================
+   RIDER SELECT
+========================================= */
+
+.rider-select {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 13px 14px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.rider-select:hover {
+    border-color: #bbbbbb;
+}
+
+.rider-select:focus {
+    border-color: #f4511e;
+
+    box-shadow:
+        0 0 0 3px rgba(244, 81, 30, 0.1);
+}
+
+.rider-select:disabled {
+    background: #f5f5f5;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   RIDER PREVIEW
+========================================= */
+
+.rider-preview {
+    margin-top: 15px;
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    background: #fafafa;
+
+    border: 1px solid #eeeeee;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.rider-preview strong {
+    font-size: 16px;
+
+    color: #222222;
+}
+
+.rider-preview span {
+    font-size: 13px;
+
+    color: #666666;
+}
+
+
+/* Online */
+
+.rider-preview .online {
+    color: #16803c;
+
+    font-weight: 700;
+}
+
+
+/* Offline */
+
+.rider-preview .offline {
+    color: #888888;
+
+    font-weight: 600;
+}
+
+
+/* =========================================
+   ASSIGN BUTTON
+========================================= */
+
+.assign-rider-btn {
+    width: 100%;
+
+    border: none;
+
+    background: #f4511e;
+
+    color: #ffffff;
+
+    padding: 14px 20px;
+
+    margin-top: 20px;
+
+    border-radius: 11px;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.assign-rider-btn:hover:not(:disabled) {
+    background: #d84315;
+
+    transform: translateY(-1px);
+}
+
+.assign-rider-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.assign-rider-btn:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================================
+   LOADING / EMPTY MESSAGE
+========================================= */
+
+.assign-message {
+    text-align: center;
+
+    padding: 25px;
+
+    color: #777777;
+
+    background: #fafafa;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.assign-error {
+    margin-top: 15px;
+
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    background: #fff0f0;
+
+    border: 1px solid #ffcaca;
+
+    color: #c62828;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   SUCCESS
+========================================= */
+
+.assign-success {
+    margin-top: 15px;
+
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    background: #eaf8ef;
+
+    border: 1px solid #c8ecd4;
+
+    color: #16803c;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 550px) {
+
+    .assign-rider-page {
+        padding: 15px;
+    }
+
+    .assign-rider-card {
+        padding: 25px 18px;
+
+        border-radius: 16px;
+    }
+
+    .assign-icon {
+        font-size: 48px;
+    }
+
+    .assign-rider-card h1 {
+        font-size: 23px;
+    }
+
+    .rider-select {
+        padding: 12px;
+    }
+}

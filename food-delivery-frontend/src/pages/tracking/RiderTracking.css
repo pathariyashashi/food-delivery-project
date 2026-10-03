@@ -1,0 +1,331 @@
+.rider-tracking-page {
+    min-height: 100vh;
+
+    background: #f7f7f7;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 30px;
+}
+
+
+.rider-tracking-card {
+    width: min(500px, 100%);
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 35px;
+
+    text-align: center;
+
+    border: 1px solid #eeeeee;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================
+   ICON
+========================================= */
+
+.rider-icon {
+    font-size: 55px;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================================
+   TITLE
+========================================= */
+
+.rider-tracking-card h1 {
+    margin: 0;
+
+    font-size: 28px;
+
+    color: #222222;
+}
+
+.rider-order {
+    color: #777777;
+
+    margin: 8px 0 25px;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   GPS STATUS
+========================================= */
+
+.gps-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 16px;
+
+    border-radius: 20px;
+
+    background: #f1f1f1;
+
+    color: #666666;
+
+    font-weight: 600;
+
+    font-size: 14px;
+}
+
+.gps-status span {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: #999999;
+}
+
+.gps-status.active {
+    background: #eaf8ef;
+
+    color: #16803c;
+}
+
+.gps-status.active span {
+    background: #16803c;
+
+    box-shadow:
+        0 0 0 4px #dff3e6;
+}
+
+
+/* =========================================
+   LOCATION
+========================================= */
+
+.location-box {
+    margin-top: 25px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+}
+
+.location-box div {
+    background: #f8f8f8;
+
+    border-radius: 12px;
+
+    padding: 15px;
+}
+
+.location-box span {
+    display: block;
+
+    font-size: 12px;
+
+    color: #777777;
+
+    margin-bottom: 6px;
+}
+
+.location-box strong {
+    font-size: 15px;
+
+    color: #222222;
+}
+
+
+/* =========================================
+   LAST UPDATED
+========================================= */
+
+.last-updated {
+    margin-top: 15px;
+
+    padding: 12px;
+
+    background: #fafafa;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 12px;
+}
+
+.last-updated span {
+    color: #777777;
+}
+
+.last-updated strong {
+    color: #333333;
+}
+
+
+/* =========================================
+   WAITING
+========================================= */
+
+.waiting-text {
+    margin-top: 25px !important;
+
+    color: #777777;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.rider-error {
+    margin-top: 20px;
+
+    padding: 13px;
+
+    border-radius: 10px;
+
+    background: #fff0f0;
+
+    color: #c62828;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.tracking-controls {
+    margin-top: 25px;
+}
+
+.start-tracking-btn,
+.stop-tracking-btn {
+    width: 100%;
+
+    border: none;
+
+    padding: 14px 20px;
+
+    border-radius: 11px;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.start-tracking-btn {
+    background: #f4511e;
+
+    color: #ffffff;
+}
+
+.start-tracking-btn:hover {
+    background: #d84315;
+
+    transform: translateY(-1px);
+}
+
+.stop-tracking-btn {
+    background: #333333;
+
+    color: #ffffff;
+}
+
+.stop-tracking-btn:hover {
+    background: #222222;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================
+   BACK
+========================================= */
+
+.back-orders-btn {
+    margin-top: 15px;
+
+    width: 100%;
+
+    border: none;
+
+    background: transparent;
+
+    color: #f4511e;
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.back-orders-btn:hover {
+    background: #fff3ef;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 550px) {
+
+    .rider-tracking-page {
+        padding: 15px;
+    }
+
+    .rider-tracking-card {
+        padding: 25px 18px;
+    }
+
+    .rider-tracking-card h1 {
+        font-size: 24px;
+    }
+
+    .location-box {
+        grid-template-columns: 1fr;
+    }
+
+    .last-updated {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+}

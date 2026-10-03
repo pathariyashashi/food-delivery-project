@@ -1,0 +1,256 @@
+.orders-page {
+    min-height: 100vh;
+    background: #f7f7f7;
+    color: #222;
+}
+
+.orders-header {
+    background: #fff;
+    padding: 28px 7%;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.orders-header h1 {
+    margin: 14px 0 5px;
+    font-size: 34px;
+}
+
+.orders-header p {
+    margin: 0;
+    color: #777;
+}
+
+.back-btn {
+    border: none;
+    background: none;
+    color: #f4511e;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.shop-btn,
+.orders-message button {
+    border: none;
+    background: #f4511e;
+    color: white;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.orders-container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.orders-message {
+    background: white;
+    padding: 60px 25px;
+    border-radius: 18px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.orders-message p {
+    color: #777;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.orders-count {
+    color: #777;
+    font-weight: 700;
+}
+
+.order-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.05);
+}
+
+.order-top {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.order-top span,
+.order-info span {
+    color: #888;
+    font-size: 13px;
+}
+
+.order-top h2 {
+    margin: 5px 0;
+}
+
+.order-top p {
+    color: #888;
+    font-size: 13px;
+}
+
+.order-status {
+    background: #fff4df;
+    color: #b66a00;
+    padding: 8px 14px;
+    border-radius: 30px;
+    height: fit-content;
+    font-size: 13px;
+}
+
+.order-info {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 30px;
+    padding: 22px 0;
+}
+
+.order-info div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.details-btn {
+    display: block;
+    margin-left: auto;
+    border: 1px solid #f4511e;
+    background: white;
+    color: #f4511e;
+    padding: 10px 18px;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.details-btn:hover {
+    background: #f4511e;
+    color: white;
+}
+
+@media (max-width: 700px) {
+    .orders-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .shop-btn {
+        width: 100%;
+    }
+
+    .order-top {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .order-info {
+        grid-template-columns: 1fr;
+    }
+
+    .details-btn {
+        width: 100%;
+    }
+}
+
+/* ============================= */
+/* ORDER ACTIONS */
+/* ============================= */
+
+.order-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+/* Common action button */
+
+.order-actions .details-btn {
+    margin-top: 0;
+}
+
+/* Track Order Button */
+
+.track-order-btn {
+    border: none;
+    background: #f4511e;
+    color: #ffffff;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.track-order-btn:hover {
+    background: #d84315;
+    transform: translateY(-1px);
+}
+
+.track-order-btn:active {
+    transform: translateY(0);
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .order-actions {
+        flex-direction: column;
+    }
+
+    .order-actions .details-btn,
+    .track-order-btn {
+        width: 100%;
+    }
+}
+
+.assign-order-btn {
+    border: none;
+
+    background: #333333;
+
+    color: #ffffff;
+
+    padding: 11px 18px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.assign-order-btn:hover {
+    background: #222222;
+
+    transform: translateY(-1px);
+}
+
+.assign-order-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .assign-order-btn {
+        width: 100%;
+    }
+}

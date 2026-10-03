@@ -1,0 +1,293 @@
+.order-detail-page {
+    min-height: 100vh;
+    background: #f7f7f7;
+    padding-bottom: 50px;
+}
+
+.order-detail-header {
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+    padding: 28px 6%;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.order-detail-header > div {
+    flex: 1;
+}
+
+.order-detail-back {
+    border: none;
+    background: transparent;
+    color: #f4511e;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.order-detail-back:hover {
+    color: #d84315;
+}
+
+.order-detail-header h1 {
+    margin: 0;
+    color: #222;
+    font-size: 28px;
+}
+
+.order-detail-header p {
+    margin: 6px 0 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.detail-status {
+    padding: 9px 14px;
+    border-radius: 20px;
+    background: #fff3e0;
+    color: #e65100;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.detail-status.confirmed,
+.detail-status.preparing {
+    background: #eef5ff;
+    color: #2563a8;
+}
+
+.detail-status.out_for_delivery {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.detail-status.delivered {
+    background: #eaf8ef;
+    color: #16803c;
+}
+
+.detail-status.cancelled {
+    background: #fff0f0;
+    color: #c62828;
+}
+
+.order-detail-container {
+    width: min(850px, 92%);
+    margin: 35px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.detail-card {
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+}
+
+.detail-card h2 {
+    margin: 0 0 20px;
+    color: #222;
+    font-size: 19px;
+}
+
+.restaurant-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.restaurant-detail strong {
+    color: #222;
+    font-size: 17px;
+}
+
+.restaurant-detail span {
+    color: #777;
+    font-size: 14px;
+}
+
+.order-items {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-item strong {
+    color: #333;
+    font-size: 14px;
+}
+
+.order-item span {
+    color: #888;
+    font-size: 13px;
+}
+
+.no-items {
+    margin: 0;
+    color: #888;
+    font-size: 14px;
+}
+
+.delivery-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.delivery-info div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.delivery-info span {
+    color: #888;
+    font-size: 12px;
+}
+
+.delivery-info strong {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.total-card {
+    padding: 22px 24px;
+}
+
+.total-card > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-card span {
+    color: #666;
+    font-size: 15px;
+}
+
+.total-card strong {
+    color: #222;
+    font-size: 23px;
+}
+
+.detail-track-btn {
+    width: 100%;
+    border: none;
+    background: #f4511e;
+    color: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.detail-track-btn:hover {
+    background: #d84315;
+}
+
+.order-detail-message {
+    width: min(500px, 90%);
+    margin: 100px auto;
+    padding: 40px 25px;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.order-detail-message h2 {
+    margin: 0 0 10px;
+    color: #222;
+}
+
+.order-detail-message p {
+    color: #777;
+}
+
+.order-detail-message button {
+    margin-top: 10px;
+    border: none;
+    background: #f4511e;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.order-detail-message.error h2 {
+    color: #c62828;
+}
+
+@media (max-width: 700px) {
+    .order-detail-header {
+        padding: 22px 5%;
+        flex-wrap: wrap;
+    }
+
+    .order-detail-header > div {
+        order: 3;
+        flex-basis: 100%;
+    }
+
+    .order-detail-header h1 {
+        font-size: 24px;
+    }
+
+    .delivery-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .order-detail-container {
+        width: 92%;
+        margin-top: 25px;
+    }
+
+    .detail-card {
+        padding: 19px;
+    }
+
+    .order-item {
+        align-items: flex-start;
+    }
+
+    .order-detail-header {
+        gap: 12px;
+    }
+
+    .detail-status {
+        margin-left: auto;
+    }
+
+    .total-card > div {
+        gap: 15px;
+    }
+}

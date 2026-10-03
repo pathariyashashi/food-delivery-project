@@ -1,0 +1,319 @@
+.rider-orders-page {
+    min-height: 100vh;
+    background: #f7f7f7;
+    padding-bottom: 50px;
+}
+
+.rider-orders-header {
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+    padding: 28px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.rider-back-btn {
+    border: none;
+    background: transparent;
+    color: #f4511e;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+.rider-back-btn:hover {
+    color: #d84315;
+}
+
+.rider-orders-header h1 {
+    margin: 0;
+    color: #222;
+    font-size: 30px;
+}
+
+.rider-orders-header p {
+    margin: 7px 0 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.rider-refresh-btn {
+    border: none;
+    background: #f4511e;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rider-refresh-btn:hover {
+    background: #d84315;
+}
+
+.rider-orders-container {
+    width: min(1050px, 92%);
+    margin: 35px auto;
+}
+
+.rider-orders-count {
+    color: #555;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.rider-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.rider-order-card {
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.rider-order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.rider-order-top span:first-child {
+    color: #888;
+    font-size: 12px;
+}
+
+.rider-order-top h2 {
+    margin: 3px 0;
+    font-size: 22px;
+    color: #222;
+}
+
+.rider-order-top p {
+    margin: 0;
+    color: #888;
+    font-size: 12px;
+}
+
+.rider-status {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.rider-status.delivered {
+    background: #eaf8ef;
+    color: #16803c;
+}
+
+.rider-status.cancelled {
+    background: #fff0f0;
+    color: #c62828;
+}
+
+.rider-status.confirmed,
+.rider-status.preparing {
+    background: #eef5ff;
+    color: #2563a8;
+}
+
+.rider-order-info {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.rider-order-info div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.rider-order-info span {
+    color: #888;
+    font-size: 12px;
+}
+
+.rider-order-info strong {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.rider-order-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid #eeeeee;
+}
+
+.start-tracking-btn,
+.view-order-btn {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.start-tracking-btn {
+    background: #f4511e;
+    color: #fff;
+}
+
+.start-tracking-btn:hover {
+    background: #d84315;
+}
+
+.view-order-btn {
+    background: #f3f3f3;
+    color: #333;
+}
+
+.view-order-btn:hover {
+    background: #e7e7e7;
+}
+
+.rider-orders-message {
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 18px;
+    padding: 50px 25px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+}
+
+.rider-orders-message h2,
+.rider-orders-message h3 {
+    margin: 10px 0;
+    color: #222;
+}
+
+.rider-orders-message p {
+    color: #777;
+    font-size: 14px;
+}
+
+.empty-icon {
+    font-size: 50px;
+}
+
+.rider-error {
+    border-color: #ffd0d0;
+}
+
+.rider-error h3 {
+    color: #c62828;
+}
+
+.rider-error button {
+    margin-top: 10px;
+    border: none;
+    background: #f4511e;
+    color: #fff;
+    padding: 11px 18px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+@media (max-width: 750px) {
+    .rider-orders-header {
+        padding: 22px 5%;
+        align-items: flex-start;
+    }
+
+    .rider-orders-header h1 {
+        font-size: 25px;
+    }
+
+    .rider-order-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .rider-orders-header {
+        flex-direction: column;
+    }
+
+    .rider-refresh-btn {
+        width: 100%;
+    }
+
+    .rider-orders-container {
+        width: 92%;
+        margin-top: 25px;
+    }
+
+    .rider-order-card {
+        padding: 18px;
+    }
+
+    .rider-order-top {
+        flex-direction: column;
+    }
+
+    .rider-order-actions {
+        flex-direction: column;
+    }
+
+    .start-tracking-btn,
+    .view-order-btn {
+        width: 100%;
+    }
+}
+
+.status-update-btn {
+    border: none;
+    background: #16803c;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.status-update-btn:hover:not(:disabled) {
+    background: #126b32;
+}
+
+.status-update-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.rider-inline-error {
+    margin-bottom: 15px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #fff0f0;
+    border: 1px solid #ffcaca;
+    color: #c62828;
+    font-size: 14px;
+}
+
+@media (max-width: 520px) {
+    .status-update-btn {
+        width: 100%;
+    }
+}
