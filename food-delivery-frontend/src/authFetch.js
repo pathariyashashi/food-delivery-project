@@ -1,8 +1,61 @@
-const API_BASE = "http://127.0.0.1:8000/api";
+/*
+|--------------------------------------------------------------------------
+| API Base URL
+|--------------------------------------------------------------------------
+| Local:
+|   VITE_API_URL=http://127.0.0.1:8000
+|
+| Production:
+|   VITE_API_URL=https://food-delivery-backend-z8iv.onrender.com
+|--------------------------------------------------------------------------
+*/
+
+const API_ROOT =
+    import.meta.env.VITE_API_URL ||
+    "http://127.0.0.1:8000";
+
+const API_BASE = `${API_ROOT}/api`;
 
 const originalFetch = window.fetch.bind(window);
 
 let refreshPromise = null;
+
+
+/*
+|--------------------------------------------------------------------------
+| Convert Local API URL → Production API URL
+|--------------------------------------------------------------------------
+*/
+
+function getApiUrl(url) {
+
+    if (!url) {
+        return url;
+    }
+
+    // Old localhost / 127.0.0.1 API URLs
+    if (
+        url.startsWith("http://127.0.0.1:8000") ||
+        url.startsWith("http://localhost:8000")
+    ) {
+        return url
+            .replace(
+                "http://127.0.0.1:8000",
+                API_ROOT
+            )
+            .replace(
+                "http://localhost:8000",
+                API_ROOT
+            );
+    }
+
+    // Relative API URLs such as /api/login/
+    if (url.startsWith("/api/")) {
+        return `${API_ROOT}${url}`;
+    }
+
+    return url;
+}
 
 
 /*
@@ -102,13 +155,22 @@ window.fetch = async function (
     init = {}
 ) {
 
-    let url;
+    let originalUrl;
 
     if (typeof input === "string") {
-        url = input;
+        originalUrl = input;
     } else {
-        url = input?.url || "";
+        originalUrl = input?.url || "";
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Convert API URL
+    |--------------------------------------------------------------------------
+    */
+
+    const url = getApiUrl(originalUrl);
 
 
     /*
@@ -167,7 +229,7 @@ window.fetch = async function (
     */
 
     let response = await originalFetch(
-        input,
+        url,
         {
             ...init,
             headers,
@@ -177,7 +239,7 @@ window.fetch = async function (
 
     /*
     |--------------------------------------------------------------------------
-    | If request is successful
+    | Successful response
     |--------------------------------------------------------------------------
     */
 
@@ -195,12 +257,6 @@ window.fetch = async function (
     |--------------------------------------------------------------------------
     | Access Token expired
     |--------------------------------------------------------------------------
-    */
-
-    /*
-       Agar multiple API requests same time
-       401 deti hain to sirf ek refresh request
-       jayegi.
     */
 
     if (!refreshPromise) {
@@ -249,7 +305,7 @@ window.fetch = async function (
 
 
     return originalFetch(
-        input,
+        url,
         {
             ...init,
             headers: retryHeaders,
