@@ -4,7 +4,7 @@ import "./Home.css";
 
 const API_ROOT =
     import.meta.env.VITE_API_URL ||
-    "http://127.0.0.1:8000";
+    "https://food-delivery-backend-z8iv.onrender.com";
 
 const API_BASE = `${API_ROOT}/api`;
 
@@ -282,75 +282,131 @@ function Home() {
     ===================================================== */
 
     async function loadHomeData() {
+    try {
+        setLoading(true);
+        setError("");
+
+        const restaurantUrl = `${API_BASE}/restaurants/`;
+        const foodUrl = `${API_BASE}/food-items/`;
+
+        const [restaurantResponse, foodResponse] =
+            await Promise.all([
+                fetch(restaurantUrl, {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }),
+                fetch(foodUrl, {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }),
+            ]);
+
+        // -----------------------------
+        // RESTAURANTS
+        // -----------------------------
+        let restaurantData = [];
+
         try {
-            setLoading(true);
-            setError("");
+            restaurantData = await restaurantResponse.json();
+        } catch {
+            restaurantData = [];
+        }
 
-            const [restaurantsResponse, foodResponse] =
-                await Promise.all([
-                    fetch(
-                        `${API_BASE}/restaurants/`
-                    ),
-                    fetch(
-                        `${API_BASE}/food-items/`
-                    ),
-                ]);
+        console.log("RESTAURANTS API:", restaurantData);
 
-            /* -----------------------------
-               FOOD
-            ----------------------------- */
+        if (!restaurantResponse.ok) {
+            console.error(
+                "Restaurant API Error:",
+                restaurantData
+            );
+            setRestaurants([]);
+        } else {
+            const restaurantList =
+                Array.isArray(restaurantData)
+                    ? restaurantData
+                    : Array.isArray(
+                          restaurantData?.results
+                      )
+                    ? restaurantData.results
+                    : [];
 
-            const foodData =
-                await foodResponse
-                    .json()
-                    .catch(() => []);
+            console.log(
+                "RESTAURANTS LIST:",
+                restaurantList
+            );
 
-            if (!foodResponse.ok) {
-                throw new Error(
-                    foodData?.detail ||
-                    "Unable to load food items."
-                );
-            }
+            setRestaurants(restaurantList);
+        }
 
-            const foodList = getList(foodData);
+        // -----------------------------
+        // FOOD ITEMS
+        // -----------------------------
+        let foodData = [];
+
+        try {
+            foodData = await foodResponse.json();
+        } catch {
+            foodData = [];
+        }
+
+        console.log("FOOD API:", foodData);
+
+        if (!foodResponse.ok) {
+            console.error(
+                "Food API Error:",
+                foodData
+            );
+
+            setAllFoodItems([]);
+            setFoodItems([]);
+        } else {
+            const foodList =
+                Array.isArray(foodData)
+                    ? foodData
+                    : Array.isArray(
+                          foodData?.results
+                      )
+                    ? foodData.results
+                    : [];
+
+            console.log(
+                "FOOD LIST:",
+                foodList
+            );
 
             setAllFoodItems(foodList);
             setFoodItems(foodList);
-
-            /* -----------------------------
-               RESTAURANTS
-            ----------------------------- */
-
-            const restaurantData =
-                await restaurantsResponse
-                    .json()
-                    .catch(() => []);
-
-            if (restaurantsResponse.ok) {
-                setRestaurants(
-                    getList(restaurantData)
-                );
-            } else {
-                console.warn(
-                    "Restaurant API failed:",
-                    restaurantData
-                );
-
-                setRestaurants([]);
-            }
-        } catch (err) {
-            console.error(
-                "HOME API ERROR:",
-                err
-            );
-
-            setError(
-                "We couldn't load the food data. Please try again."
-            );
-        } finally {
-            setLoading(false);
         }
+
+        // -----------------------------
+        // DON'T SHOW GLOBAL ERROR
+        // if one API fails
+        // -----------------------------
+        if (
+            !restaurantResponse.ok &&
+            !foodResponse.ok
+        ) {
+            setError(
+                "Unable to load restaurants and food items."
+            );
+        }
+    } catch (err) {
+        console.error(
+            "HOME API ERROR:",
+            err
+        );
+
+        setError(
+            "Unable to connect to the food service."
+        );
+    } finally {
+        setLoading(false);
     }
+}
 
     /* =====================================================
        APPLY FILTERS
