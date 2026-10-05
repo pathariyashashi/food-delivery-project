@@ -2,12 +2,6 @@
 |--------------------------------------------------------------------------
 | API Base URL
 |--------------------------------------------------------------------------
-| Local:
-|   VITE_API_URL=http://127.0.0.1:8000
-|
-| Production:
-|   VITE_API_URL=https://food-delivery-backend-z8iv.onrender.com
-|--------------------------------------------------------------------------
 */
 
 const API_ROOT =
@@ -33,7 +27,6 @@ function getApiUrl(url) {
         return url;
     }
 
-    // Old localhost / 127.0.0.1 API URLs
     if (
         url.startsWith("http://127.0.0.1:8000") ||
         url.startsWith("http://localhost:8000")
@@ -49,12 +42,33 @@ function getApiUrl(url) {
             );
     }
 
-    // Relative API URLs such as /api/login/
     if (url.startsWith("/api/")) {
         return `${API_ROOT}${url}`;
     }
 
     return url;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Check Public API
+|--------------------------------------------------------------------------
+| In APIs ko JWT ki zarurat nahi hai.
+|--------------------------------------------------------------------------
+*/
+
+function isPublicApi(url) {
+
+    const publicEndpoints = [
+        "/api/food-items/",
+        "/api/categories/",
+        "/api/restaurants/",
+    ];
+
+    return publicEndpoints.some(
+        (endpoint) => url.includes(endpoint)
+    );
 }
 
 
@@ -128,17 +142,11 @@ async function refreshAccessToken() {
 
 function forceLogout() {
 
-    localStorage.removeItem(
-        "access_token"
-    );
-
-    localStorage.removeItem(
-        "refresh_token"
-    );
-
-    localStorage.removeItem(
-        "user_email"
-    );
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_email");
+    localStorage.removeItem("user_role");
+    localStorage.removeItem("user_data");
 
     window.location.href = "/login";
 }
@@ -175,7 +183,7 @@ window.fetch = async function (
 
     /*
     |--------------------------------------------------------------------------
-    | Login / Refresh ko intercept nahi karna
+    | Special Requests
     |--------------------------------------------------------------------------
     */
 
@@ -185,10 +193,13 @@ window.fetch = async function (
     const isRefreshRequest =
         url.includes("/api/token/refresh/");
 
+    const publicApi =
+        isPublicApi(url);
+
 
     /*
     |--------------------------------------------------------------------------
-    | Existing headers copy
+    | Existing Headers
     |--------------------------------------------------------------------------
     */
 
@@ -199,7 +210,7 @@ window.fetch = async function (
 
     /*
     |--------------------------------------------------------------------------
-    | Access Token automatically attach
+    | Access Token
     |--------------------------------------------------------------------------
     */
 
@@ -207,18 +218,24 @@ window.fetch = async function (
         localStorage.getItem("access_token");
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Attach JWT only when required
+    |--------------------------------------------------------------------------
+    */
+
     if (
         accessToken &&
         !headers.has("Authorization") &&
         !isLoginRequest &&
-        !isRefreshRequest
+        !isRefreshRequest &&
+        !publicApi
     ) {
 
         headers.set(
             "Authorization",
             `Bearer ${accessToken}`
         );
-
     }
 
 
@@ -246,7 +263,8 @@ window.fetch = async function (
     if (
         response.status !== 401 ||
         isLoginRequest ||
-        isRefreshRequest
+        isRefreshRequest ||
+        publicApi
     ) {
 
         return response;
@@ -255,7 +273,7 @@ window.fetch = async function (
 
     /*
     |--------------------------------------------------------------------------
-    | Access Token expired
+    | Access Token Expired
     |--------------------------------------------------------------------------
     */
 
@@ -266,7 +284,6 @@ window.fetch = async function (
                 .finally(() => {
                     refreshPromise = null;
                 });
-
     }
 
 
@@ -276,7 +293,7 @@ window.fetch = async function (
 
     /*
     |--------------------------------------------------------------------------
-    | Refresh failed
+    | Refresh Failed
     |--------------------------------------------------------------------------
     */
 
