@@ -62,8 +62,13 @@ function Login() {
         setError("");
 
         try {
+            // Production + Local API support
+            const API_ROOT =
+                import.meta.env.VITE_API_URL ||
+                "http://127.0.0.1:8000";
+
             const response = await fetch(
-                "http://127.0.0.1:8000/api/login/",
+                `${API_ROOT}/api/login/`,
                 {
                     method: "POST",
                     headers: {
@@ -114,10 +119,10 @@ function Login() {
              *   "access": "...",
              *   "refresh": "...",
              *   "user": {
-             *      "id": 11,
-             *      "username": "admin_test",
-             *      "email": "admin@fooddelivery.com",
-             *      "role": "admin"
+             *     "id": 11,
+             *     "username": "admin_test",
+             *     "email": "admin@fooddelivery.com",
+             *     "role": "admin"
              *   }
              * }
              */
@@ -140,11 +145,12 @@ function Login() {
 
             // Make sure user object exists
             if (!data.user) {
-                setError("User information was not received from server.");
+                setError(
+                    "User information was not received from server."
+                );
                 return;
             }
 
-            // IMPORTANT:
             // Role comes from data.user.role
             const role = data.user.role || "customer";
 
@@ -174,7 +180,8 @@ function Login() {
             } else if (role === "rider") {
                 navigate("/rider/orders", { replace: true });
             } else {
-                navigate("/", { replace: true });
+                // Customer -> Homepage
+                navigate("/home", { replace: true });
             }
 
         } catch (err) {
