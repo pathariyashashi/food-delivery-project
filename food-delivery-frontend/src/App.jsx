@@ -16,79 +16,136 @@ import RiderOrders from "./pages/orders/RiderOrders";
 
 import Tracking from "./pages/tracking/Tracking";
 import RiderTracking from "./pages/tracking/RiderTracking";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Riders from "./pages/admin/Riders";
 import CreateRider from "./pages/admin/CreateRider";
-
 import AdminOrders from "./pages/admin/AdminOrders";
 
 function App() {
     return (
         <Routes>
 
-            {/* Home */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/home" element={<Home />} />
+            {/* =========================
+                PUBLIC / AUTH
+            ========================= */}
 
-            {/* Authentication */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/riders" element={<Riders />} />
+            <Route
+                path="/login"
+                element={<Login />}
+            />
+
+            <Route
+                path="/register"
+                element={<Register />}
+            />
+
             <Route
                 path="/forgot-password"
                 element={<ForgotPassword />}
             />
 
-            {/* Customer */}
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
 
-            {/* Orders */}
-            <Route path="/orders" element={<Orders />} />
+            {/* =========================
+                CUSTOMER HOME
+            ========================= */}
+
+            <Route
+                path="/"
+                element={<Navigate to="/home" replace />}
+            />
+
+            <Route
+                path="/home"
+                element={<Home />}
+            />
+
+
+            {/* =========================
+                CUSTOMER
+            ========================= */}
+
+            <Route
+                path="/cart"
+                element={<Cart />}
+            />
+
+            <Route
+                path="/checkout"
+                element={<Checkout />}
+            />
+
+            <Route
+                path="/orders"
+                element={<Orders />}
+            />
+
             <Route
                 path="/orders/:orderId"
                 element={<OrderDetail />}
             />
 
-            {/* Admin / Manager */}
-            <Route
-                path="/orders/:orderId/assign-rider"
-                element={<AssignRider />}
-            />
-
-            {/* Rider */}
-            <Route
-                path="/rider/orders"
-                element={<RiderOrders />}
-            />
-
-            {/* Customer Tracking */}
             <Route
                 path="/tracking/:orderId"
                 element={<Tracking />}
             />
 
-            {/* Rider Live Tracking */}
+
+            {/* =========================
+                ADMIN
+            ========================= */}
+
+            <Route
+                path="/admin"
+                element={<AdminDashboard />}
+            />
+
+            <Route
+                path="/admin/orders"
+                element={<AdminOrders />}
+            />
+
+            <Route
+                path="/admin/riders"
+                element={<Riders />}
+            />
+
+            <Route
+                path="/admin/riders/create"
+                element={<CreateRider />}
+            />
+
+            <Route
+                path="/orders/:orderId/assign-rider"
+                element={<AssignRider />}
+            />
+
+
+            {/* =========================
+                RIDER
+            ========================= */}
+
+            <Route
+                path="/rider/orders"
+                element={<RiderOrders />}
+            />
+
             <Route
                 path="/rider-tracking/:orderId"
                 element={<RiderTracking />}
             />
 
-            {/* Unknown route */}
-            <Route
-                path="*"
-                element={<Navigate to="/login" replace />}
-            />
+
+            {/* =========================
+                UNKNOWN URL
+            ========================= */}
 
             <Route
-    path="/admin/riders/create"
-    element={<CreateRider />}
-/>
-            <Route path="/admin/orders" element={<AdminOrders />} />
+                path="*"
+                element={<Navigate to="/home" replace />}
+            />
+
         </Routes>
-              
-        
     );
 }
 

@@ -2,7 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_ROOT =
+    import.meta.env.VITE_API_URL ||
+    "http://127.0.0.1:8000";
+
+const API_BASE = `${API_ROOT}/api`;
+
+/* =========================================================
+   ICONS
+========================================================= */
 
 const Icons = {
     logo: (
@@ -94,8 +102,14 @@ const Icons = {
     ),
 };
 
+/* =========================================================
+   HELPERS
+========================================================= */
+
 function getList(data) {
-    if (Array.isArray(data)) return data;
+    if (Array.isArray(data)) {
+        return data;
+    }
 
     if (Array.isArray(data?.results)) {
         return data.results;
@@ -105,25 +119,42 @@ function getList(data) {
 }
 
 function getImageUrl(image) {
-    if (!image) return "";
+    if (!image) {
+        return "";
+    }
 
-    if (image.startsWith("http")) {
+    if (
+        image.startsWith("http://") ||
+        image.startsWith("https://")
+    ) {
         return image;
     }
 
-    return `http://127.0.0.1:8000${image}`;
+    return `${API_ROOT}${image}`;
 }
 
 function getCategoryName(food) {
-    if (typeof food.category === "string") {
+    if (food?.category_name) {
+        return food.category_name;
+    }
+
+    if (typeof food?.category === "string") {
         return food.category;
     }
 
-    if (food.category?.name) {
+    if (food?.category?.name) {
         return food.category.name;
     }
 
     return "Popular";
+}
+
+function getRestaurantId(food) {
+    return (
+        food?.restaurant ??
+        food?.restaurant_id ??
+        ""
+    );
 }
 
 function getCartItems(data) {
@@ -156,6 +187,10 @@ function getCartCount(data) {
     );
 }
 
+/* =========================================================
+   HOME
+========================================================= */
+
 function Home() {
     const navigate = useNavigate();
 
@@ -164,9 +199,15 @@ function Home() {
     const [allFoodItems, setAllFoodItems] = useState([]);
 
     const [search, setSearch] = useState("");
-    const [activeCategory, setActiveCategory] = useState("All");
-    const [restaurantFilter, setRestaurantFilter] = useState("all");
-    const [foodTypeFilter, setFoodTypeFilter] = useState("all");
+    const [activeCategory, setActiveCategory] =
+        useState("All");
+
+    const [restaurantFilter, setRestaurantFilter] =
+        useState("all");
+
+    const [foodTypeFilter, setFoodTypeFilter] =
+        useState("all");
+
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
 
@@ -174,8 +215,11 @@ function Home() {
     const [error, setError] = useState("");
 
     const [cartCount, setCartCount] = useState(0);
-    const [addingItemId, setAddingItemId] = useState(null);
-    const [cartMessage, setCartMessage] = useState("");
+    const [addingItemId, setAddingItemId] =
+        useState(null);
+
+    const [cartMessage, setCartMessage] =
+        useState("");
 
     const [darkMode, setDarkMode] = useState(() => {
         return (
@@ -188,18 +232,22 @@ function Home() {
         localStorage.getItem("user_email") ||
         "Customer";
 
-    /* ================================
+    const userRole =
+        localStorage.getItem("user_role") ||
+        "customer";
+
+    /* =====================================================
        INITIAL LOAD
-    ================================= */
+    ===================================================== */
 
     useEffect(() => {
         loadHomeData();
         loadCartCount();
     }, []);
 
-    /* ================================
+    /* =====================================================
        THEME
-    ================================= */
+    ===================================================== */
 
     useEffect(() => {
         localStorage.setItem(
@@ -208,9 +256,9 @@ function Home() {
         );
     }, [darkMode]);
 
-    /* ================================
-       CART MESSAGE AUTO HIDE
-    ================================= */
+    /* =====================================================
+       CART MESSAGE
+    ===================================================== */
 
     useEffect(() => {
         if (!cartMessage) {
@@ -224,111 +272,72 @@ function Home() {
         return () => clearTimeout(timer);
     }, [cartMessage]);
 
-    /* ================================
+    /* =====================================================
        LOAD HOME DATA
-    ================================= */
+       
+       IMPORTANT:
+       We load all food once and keep it in allFoodItems.
+       Filters are handled locally so backend filter
+       response can never accidentally wipe the menu.
+    ===================================================== */
 
-    const loadFoodItems = async (overrides = {}) => {
-        try {
-            setLoading(true);
-            setError("");
-
-            const category =
-                overrides.category ?? activeCategory;
-            const restaurant =
-                overrides.restaurant ?? restaurantFilter;
-            const foodType =
-                overrides.foodType ?? foodTypeFilter;
-            const min =
-                overrides.minPrice ?? minPrice;
-            const max =
-                overrides.maxPrice ?? maxPrice;
-
-            const params = new URLSearchParams();
-
-            if (restaurant && restaurant !== "all") {
-                params.set("restaurant", restaurant);
-            }
-
-            if (category && category !== "All") {
-                params.set("category", category);
-            }
-
-            if (foodType === "veg") {
-                params.set("is_veg", "true");
-            } else if (foodType === "nonveg") {
-                params.set("is_veg", "false");
-            }
-
-            if (min !== "" && min !== null && min !== undefined) {
-                params.set("min_price", min);
-            }
-
-            if (max !== "" && max !== null && max !== undefined) {
-                params.set("max_price", max);
-            }
-
-            const query = params.toString();
-            const url = query
-                ? `${API_BASE}/food-items/?${query}`
-                : `${API_BASE}/food-items/`;
-
-            const response = await fetch(url);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data?.detail ||
-                    "Unable to load food items."
-                );
-            }
-
-            setFoodItems(getList(data));
-        } catch (err) {
-            console.error("FOOD FILTER API ERROR:", err);
-            setError(
-                "We couldn't load the food data. Please try again."
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const loadHomeData = async () => {
+    async function loadHomeData() {
         try {
             setLoading(true);
             setError("");
 
             const [restaurantsResponse, foodResponse] =
                 await Promise.all([
-                    fetch(`${API_BASE}/restaurants/`),
-                    fetch(`${API_BASE}/food-items/`),
+                    fetch(
+                        `${API_BASE}/restaurants/`
+                    ),
+                    fetch(
+                        `${API_BASE}/food-items/`
+                    ),
                 ]);
 
-            const restaurantData =
-                await restaurantsResponse.json();
-            const foodData =
-                await foodResponse.json();
+            /* -----------------------------
+               FOOD
+            ----------------------------- */
 
-            if (!restaurantsResponse.ok) {
-                throw new Error(
-                    "Unable to load restaurants."
-                );
-            }
+            const foodData =
+                await foodResponse
+                    .json()
+                    .catch(() => []);
 
             if (!foodResponse.ok) {
                 throw new Error(
+                    foodData?.detail ||
                     "Unable to load food items."
                 );
             }
 
-            const restaurantList =
-                getList(restaurantData);
             const foodList = getList(foodData);
 
-            setRestaurants(restaurantList);
             setAllFoodItems(foodList);
             setFoodItems(foodList);
+
+            /* -----------------------------
+               RESTAURANTS
+            ----------------------------- */
+
+            const restaurantData =
+                await restaurantsResponse
+                    .json()
+                    .catch(() => []);
+
+            if (restaurantsResponse.ok) {
+                setRestaurants(
+                    getList(restaurantData)
+                );
+            } else {
+                console.warn(
+                    "Restaurant API failed:",
+                    restaurantData
+                );
+
+                setRestaurants([]);
+            }
         } catch (err) {
             console.error(
                 "HOME API ERROR:",
@@ -341,14 +350,92 @@ function Home() {
         } finally {
             setLoading(false);
         }
-    };
+    }
 
-    const applyFilters = async () => {
-        await loadFoodItems();
+    /* =====================================================
+       APPLY FILTERS
+       
+       LOCAL FILTERING
+    ===================================================== */
+
+    function applyFilters() {
+        const filtered = allFoodItems.filter(
+            (food) => {
+                /* Category */
+                if (
+                    activeCategory !== "All" &&
+                    getCategoryName(food) !==
+                        activeCategory
+                ) {
+                    return false;
+                }
+
+                /* Restaurant */
+                if (
+                    restaurantFilter !== "all"
+                ) {
+                    const foodRestaurant =
+                        String(
+                            getRestaurantId(food)
+                        );
+
+                    if (
+                        foodRestaurant !==
+                        String(restaurantFilter)
+                    ) {
+                        return false;
+                    }
+                }
+
+                /* Food type */
+                if (
+                    foodTypeFilter === "veg" &&
+                    food.is_veg !== true
+                ) {
+                    return false;
+                }
+
+                if (
+                    foodTypeFilter === "nonveg" &&
+                    food.is_veg === true
+                ) {
+                    return false;
+                }
+
+                /* Minimum price */
+                if (minPrice !== "") {
+                    if (
+                        Number(food.price) <
+                        Number(minPrice)
+                    ) {
+                        return false;
+                    }
+                }
+
+                /* Maximum price */
+                if (maxPrice !== "") {
+                    if (
+                        Number(food.price) >
+                        Number(maxPrice)
+                    ) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        );
+
+        setFoodItems(filtered);
+
         scrollToFood();
-    };
+    }
 
-    const clearFilters = async () => {
+    /* =====================================================
+       CLEAR FILTERS
+    ===================================================== */
+
+    function clearFilters() {
         setActiveCategory("All");
         setRestaurantFilter("all");
         setFoodTypeFilter("all");
@@ -356,20 +443,16 @@ function Home() {
         setMaxPrice("");
         setSearch("");
 
-        await loadFoodItems({
-            category: "All",
-            restaurant: "all",
-            foodType: "all",
-            minPrice: "",
-            maxPrice: "",
-        });
-    };
+        setFoodItems(allFoodItems);
 
-    /* ================================
-       LOAD CART COUNT
-    ================================= */
+        scrollToFood();
+    }
 
-    const loadCartCount = async () => {
+    /* =====================================================
+       CART COUNT
+    ===================================================== */
+
+    async function loadCartCount() {
         const token =
             localStorage.getItem(
                 "access_token"
@@ -385,11 +468,9 @@ function Home() {
                 `${API_BASE}/cart/`,
                 {
                     method: "GET",
-
                     headers: {
                         Authorization:
                             `Bearer ${token}`,
-
                         Accept:
                             "application/json",
                     },
@@ -402,14 +483,15 @@ function Home() {
             }
 
             const data =
-                await response.json();
+                await response
+                    .json()
+                    .catch(() => ({}));
 
             if (!response.ok) {
                 console.error(
                     "CART LOAD ERROR:",
                     data
                 );
-
                 return;
             }
 
@@ -422,15 +504,13 @@ function Home() {
                 err
             );
         }
-    };
+    }
 
-    /* ================================
+    /* =====================================================
        ADD TO CART
-    ================================= */
+    ===================================================== */
 
-    const addToCart = async (
-        foodItemId
-    ) => {
+    async function addToCart(foodItemId) {
         const token =
             localStorage.getItem(
                 "access_token"
@@ -442,10 +522,7 @@ function Home() {
         }
 
         try {
-            setAddingItemId(
-                foodItemId
-            );
-
+            setAddingItemId(foodItemId);
             setCartMessage("");
 
             const response =
@@ -453,22 +530,17 @@ function Home() {
                     `${API_BASE}/cart/add/`,
                     {
                         method: "POST",
-
                         headers: {
                             "Content-Type":
                                 "application/json",
-
                             Authorization:
                                 `Bearer ${token}`,
-
                             Accept:
                                 "application/json",
                         },
-
                         body: JSON.stringify({
                             food_item:
                                 foodItemId,
-
                             quantity: 1,
                         }),
                     }
@@ -477,9 +549,7 @@ function Home() {
             const data =
                 await response
                     .json()
-                    .catch(
-                        () => ({})
-                    );
+                    .catch(() => ({}));
 
             if (!response.ok) {
                 console.error(
@@ -513,11 +583,11 @@ function Home() {
         } finally {
             setAddingItemId(null);
         }
-    };
+    }
 
-    /* ================================
+    /* =====================================================
        CATEGORIES
-    ================================= */
+    ===================================================== */
 
     const categories = useMemo(() => {
         const unique = [];
@@ -541,15 +611,14 @@ function Home() {
         ];
     }, [allFoodItems]);
 
-    /* ================================
-       FILTER FOOD
-    ================================= */
+    /* =====================================================
+       FILTER FOOD BY SEARCH
+    ===================================================== */
 
     const filteredFood = useMemo(() => {
-        const query =
-            search
-                .trim()
-                .toLowerCase();
+        const query = search
+            .trim()
+            .toLowerCase();
 
         if (!query) {
             return foodItems;
@@ -557,32 +626,39 @@ function Home() {
 
         return foodItems.filter((food) => {
             const foodName =
-                food.name?.toLowerCase() || "";
+                food?.name
+                    ?.toLowerCase() || "";
 
             const description =
-                food.description?.toLowerCase() || "";
+                food?.description
+                    ?.toLowerCase() || "";
 
             const category =
-                getCategoryName(food).toLowerCase();
+                getCategoryName(food)
+                    .toLowerCase();
+
+            const restaurantName =
+                food?.restaurant_name
+                    ?.toLowerCase() || "";
 
             return (
                 foodName.includes(query) ||
                 description.includes(query) ||
-                category.includes(query)
+                category.includes(query) ||
+                restaurantName.includes(query)
             );
         });
     }, [foodItems, search]);
 
-    /* ================================
+    /* =====================================================
        FILTER RESTAURANTS
-    ================================= */
+    ===================================================== */
 
     const filteredRestaurants =
         useMemo(() => {
-            const query =
-                search
-                    .trim()
-                    .toLowerCase();
+            const query = search
+                .trim()
+                .toLowerCase();
 
             if (!query) {
                 return restaurants;
@@ -591,43 +667,34 @@ function Home() {
             return restaurants.filter(
                 (restaurant) => {
                     const name =
-                        restaurant.name
+                        restaurant?.name
                             ?.toLowerCase() ||
                         "";
 
                     const description =
-                        restaurant.description
+                        restaurant?.description
                             ?.toLowerCase() ||
                         "";
 
                     const address =
-                        restaurant.address
+                        restaurant?.address
                             ?.toLowerCase() ||
                         "";
 
                     return (
-                        name.includes(
-                            query
-                        ) ||
-                        description.includes(
-                            query
-                        ) ||
-                        address.includes(
-                            query
-                        )
+                        name.includes(query) ||
+                        description.includes(query) ||
+                        address.includes(query)
                     );
                 }
             );
-        }, [
-            restaurants,
-            search,
-        ]);
+        }, [restaurants, search]);
 
-    /* ================================
+    /* =====================================================
        LOGOUT
-    ================================= */
+    ===================================================== */
 
-    const handleLogout = () => {
+    function handleLogout() {
         localStorage.removeItem(
             "access_token"
         );
@@ -640,23 +707,35 @@ function Home() {
             "user_email"
         );
 
-        navigate("/login");
-    };
+        localStorage.removeItem(
+            "user_role"
+        );
 
-    /* ================================
+        localStorage.removeItem(
+            "user_data"
+        );
+
+        navigate("/login", {
+            replace: true,
+        });
+    }
+
+    /* =====================================================
        SCROLL
-    ================================= */
+    ===================================================== */
 
-    const scrollToFood = () => {
+    function scrollToFood() {
         document
-            .getElementById(
-                "food-section"
-            )
+            .getElementById("food-section")
             ?.scrollIntoView({
                 behavior: "smooth",
                 block: "start",
             });
-    };
+    }
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
         <div
@@ -666,9 +745,9 @@ function Home() {
                     : "light-theme"
             }`}
         >
-            {/* ================================
+            {/* =================================================
                 CART TOAST
-            ================================= */}
+            ================================================= */}
 
             {cartMessage && (
                 <div
@@ -698,12 +777,13 @@ function Home() {
                 </div>
             )}
 
-            {/* ================================
+            {/* =================================================
                 NAVBAR
-            ================================= */}
+            ================================================= */}
 
             <header className="home-navbar">
                 <div className="navbar-inner">
+
                     <button
                         className="brand"
                         onClick={() =>
@@ -725,9 +805,7 @@ function Home() {
 
                     <div className="delivery-location">
                         <div className="location-icon">
-                            {
-                                Icons.location
-                            }
+                            {Icons.location}
                         </div>
 
                         <div>
@@ -743,100 +821,126 @@ function Home() {
 
                     <div className="navbar-right">
 
-    {/* Theme Toggle */}
-    <button
-        className="theme-toggle"
-        onClick={() =>
-            setDarkMode((value) => !value)
-        }
-        title={
-            darkMode
-                ? "Switch to light mode"
-                : "Switch to dark mode"
-        }
-        aria-label="Toggle theme"
-    >
-        {darkMode ? Icons.sun : Icons.moon}
-    </button>
+                        {/* Theme */}
+                        <button
+                            className="theme-toggle"
+                            onClick={() =>
+                                setDarkMode(
+                                    (value) =>
+                                        !value
+                                )
+                            }
+                            title={
+                                darkMode
+                                    ? "Switch to light mode"
+                                    : "Switch to dark mode"
+                            }
+                            aria-label="Toggle theme"
+                        >
+                            {darkMode
+                                ? Icons.sun
+                                : Icons.moon}
+                        </button>
 
-    {/* My Orders */}
-    <button
-        className="nav-orders"
-        onClick={() => navigate("/orders")}
-        title="My Orders"
-    >
-        <span className="nav-orders-icon">
-            
-        </span>
+                        {/* Orders */}
+                        <button
+                            className="nav-orders"
+                            onClick={() =>
+                                navigate(
+                                    "/orders"
+                                )
+                            }
+                            title="My Orders"
+                        >
+                            <span className="nav-orders-icon">
+                            </span>
 
-        <span>
-            My Orders
-        </span>
-    </button>
+                            <span>
+                                My Orders
+                            </span>
+                        </button>
 
-    {/* Cart */}
-    <button
-        className="nav-cart"
-        onClick={() => navigate("/cart")}
-        title="Shopping Cart"
-    >
-        <span className="nav-cart-icon">
-            {Icons.cart}
+                        {/* Cart */}
+                        <button
+                            className="nav-cart"
+                            onClick={() =>
+                                navigate(
+                                    "/cart"
+                                )
+                            }
+                            title="Shopping Cart"
+                        >
+                            <span className="nav-cart-icon">
+                                {Icons.cart}
 
-            {cartCount > 0 && (
-                <span className="cart-count">
-                    {cartCount > 99
-                        ? "99+"
-                        : cartCount}
-                </span>
-            )}
-        </span>
+                                {cartCount >
+                                    0 && (
+                                    <span className="cart-count">
+                                        {cartCount >
+                                        99
+                                            ? "99+"
+                                            : cartCount}
+                                    </span>
+                                )}
+                            </span>
 
-        <span>
-            Cart
-        </span>
-    </button>
+                            <span>
+                                Cart
+                            </span>
+                        </button>
 
-    {/* User */}
-    <div className="user-menu">
+                        {/* User */}
+                        <div className="user-menu">
 
-        <div className="user-avatar">
-            {userEmail
-                .charAt(0)
-                .toUpperCase()}
-        </div>
+                            <div className="user-avatar">
+                                {userEmail
+                                    .charAt(
+                                        0
+                                    )
+                                    .toUpperCase()}
+                            </div>
 
-        <div className="user-details">
-            <strong>
-                {userEmail}
-            </strong>
+                            <div className="user-details">
+                                <strong>
+                                    {userEmail}
+                                </strong>
 
-            <span>
-                Customer
-            </span>
-        </div>
+                                <span>
+                                    {userRole
+                                        .charAt(
+                                            0
+                                        )
+                                        .toUpperCase() +
+                                        userRole.slice(
+                                            1
+                                        )}
+                                </span>
+                            </div>
 
-        <button
-            className="logout-btn"
-            onClick={handleLogout}
-            title="Logout"
-        >
-            {Icons.logout}
-        </button>
+                            <button
+                                className="logout-btn"
+                                onClick={
+                                    handleLogout
+                                }
+                                title="Logout"
+                            >
+                                {Icons.logout}
+                            </button>
 
-    </div>
-
-</div>
+                        </div>
+                    </div>
                 </div>
             </header>
 
-            {/* ================================
+            {/* =================================================
                 HERO
-            ================================= */}
+            ================================================= */}
 
             <section className="hero">
                 <div className="hero-inner">
+
                     <div className="hero-copy">
+
                         <span className="hero-eyebrow">
                             FRESH FOOD • FAST
                             DELIVERY
@@ -845,7 +949,6 @@ function Home() {
                         <h1>
                             Your favorite food,
                             <br />
-
                             <span>
                                 delivered fresh.
                             </span>
@@ -860,10 +963,9 @@ function Home() {
                         </p>
 
                         <div className="hero-search">
+
                             <span className="search-icon">
-                                {
-                                    Icons.search
-                                }
+                                {Icons.search}
                             </span>
 
                             <input
@@ -885,9 +987,11 @@ function Home() {
                             >
                                 Search
                             </button>
+
                         </div>
 
                         <div className="hero-trust">
+
                             <div>
                                 <strong>
                                     Fast
@@ -917,11 +1021,14 @@ function Home() {
                                     ordering
                                 </span>
                             </div>
+
                         </div>
                     </div>
 
                     <div className="hero-visual">
+
                         <div className="hero-image-card">
+
                             <div className="food-image-placeholder">
                                 <div className="plate">
                                     <div className="plate-food">
@@ -934,6 +1041,7 @@ function Home() {
                             </div>
 
                             <div className="hero-floating-card">
+
                                 <div className="mini-avatar">
                                     F
                                 </div>
@@ -952,21 +1060,28 @@ function Home() {
                                 <div className="mini-check">
                                     ✓
                                 </div>
+
                             </div>
                         </div>
                     </div>
+
                 </div>
             </section>
 
-            {/* ================================
+            {/* =================================================
                 MAIN
-            ================================= */}
+            ================================================= */}
 
             <main className="home-main">
-                {/* Categories */}
+
+                {/* =================================================
+                    CATEGORIES
+                ================================================= */}
 
                 <section className="categories-section">
+
                     <div className="section-header">
+
                         <div>
                             <span className="section-label">
                                 EXPLORE
@@ -982,9 +1097,11 @@ function Home() {
                                 categories.
                             </p>
                         </div>
+
                     </div>
 
                     <div className="category-list">
+
                         {categories.map(
                             (category) => (
                                 <button
@@ -997,11 +1114,28 @@ function Home() {
                                             ? "category-pill active"
                                             : "category-pill"
                                     }
-                                    onClick={async () => {
-                                        setActiveCategory(category);
-                                        await loadFoodItems({
-                                            category,
-                                        });
+                                    onClick={() => {
+                                        setActiveCategory(
+                                            category
+                                        );
+
+                                        const filtered =
+                                            allFoodItems.filter(
+                                                (
+                                                    food
+                                                ) =>
+                                                    category ===
+                                                        "All" ||
+                                                    getCategoryName(
+                                                        food
+                                                    ) ===
+                                                        category
+                                            );
+
+                                        setFoodItems(
+                                            filtered
+                                        );
+
                                         scrollToFood();
                                     }}
                                 >
@@ -1009,13 +1143,18 @@ function Home() {
                                 </button>
                             )
                         )}
+
                     </div>
                 </section>
 
-                {/* Restaurants */}
+                {/* =================================================
+                    RESTAURANTS
+                ================================================= */}
 
                 <section className="restaurants-section">
+
                     <div className="section-header row">
+
                         <div>
                             <span className="section-label">
                                 NEAR YOU
@@ -1053,11 +1192,10 @@ function Home() {
                             View all
 
                             <span>
-                                {
-                                    Icons.arrow
-                                }
+                                {Icons.arrow}
                             </span>
                         </button>
+
                     </div>
 
                     {loading ? (
@@ -1072,10 +1210,9 @@ function Home() {
                     ) : filteredRestaurants.length ===
                       0 ? (
                         <div className="empty-state">
+
                             <div className="empty-icon">
-                                {
-                                    Icons.search
-                                }
+                                {Icons.search}
                             </div>
 
                             <h3>
@@ -1087,21 +1224,20 @@ function Home() {
                                 Try another
                                 search.
                             </p>
+
                         </div>
                     ) : (
                         <div className="restaurant-grid">
+
                             {filteredRestaurants
-                                .slice(
-                                    0,
-                                    6
-                                )
+                                .slice(0, 6)
                                 .map(
                                     (
                                         restaurant
                                     ) => {
                                         const image =
                                             getImageUrl(
-                                                restaurant.image
+                                                restaurant?.image
                                             );
 
                                         return (
@@ -1111,7 +1247,9 @@ function Home() {
                                                     restaurant.id
                                                 }
                                             >
+
                                                 <div className="restaurant-cover">
+
                                                     {image ? (
                                                         <img
                                                             src={
@@ -1120,11 +1258,17 @@ function Home() {
                                                             alt={
                                                                 restaurant.name
                                                             }
+                                                            onError={(
+                                                                e
+                                                            ) => {
+                                                                e.currentTarget.style.display =
+                                                                    "none";
+                                                            }}
                                                         />
                                                     ) : (
                                                         <div className="restaurant-cover-fallback">
                                                             <span>
-                                                                {restaurant.name
+                                                                {restaurant?.name
                                                                     ?.charAt(
                                                                         0
                                                                     )
@@ -1142,9 +1286,11 @@ function Home() {
                                                             4.5
                                                         </span>
                                                     </div>
+
                                                 </div>
 
                                                 <div className="restaurant-body">
+
                                                     <h3>
                                                         {
                                                             restaurant.name
@@ -1152,11 +1298,14 @@ function Home() {
                                                     </h3>
 
                                                     <p>
-                                                        {restaurant.description ||
-                                                            "Delicious food and great taste."}
+                                                        {
+                                                            restaurant.description ||
+                                                            "Delicious food and great taste."
+                                                        }
                                                     </p>
 
                                                     <div className="restaurant-info">
+
                                                         <span>
                                                             {
                                                                 Icons.clock
@@ -1170,23 +1319,30 @@ function Home() {
                                                             Free
                                                             delivery
                                                         </span>
+
                                                     </div>
                                                 </div>
+
                                             </article>
                                         );
                                     }
                                 )}
+
                         </div>
                     )}
                 </section>
 
-                {/* Food */}
+                {/* =================================================
+                    FOOD
+                ================================================= */}
 
                 <section
                     className="food-section"
                     id="food-section"
                 >
+
                     <div className="section-header row">
+
                         <div>
                             <span className="section-label">
                                 MENU
@@ -1205,9 +1361,12 @@ function Home() {
                         </div>
 
                         <div className="food-filter-actions">
+
                             <button
                                 className="filter-btn"
-                                onClick={applyFilters}
+                                onClick={
+                                    applyFilters
+                                }
                                 disabled={loading}
                             >
                                 {Icons.filter}
@@ -1216,53 +1375,103 @@ function Home() {
 
                             <button
                                 className="clear-filter-btn"
-                                onClick={clearFilters}
+                                onClick={
+                                    clearFilters
+                                }
                                 disabled={loading}
                             >
                                 Clear
                             </button>
+
                         </div>
                     </div>
 
+                    {/* FILTER PANEL */}
+
                     <div className="food-filter-panel">
+
                         <div className="filter-field">
-                            <label htmlFor="restaurant-filter">Restaurant</label>
+
+                            <label htmlFor="restaurant-filter">
+                                Restaurant
+                            </label>
+
                             <select
                                 id="restaurant-filter"
-                                value={restaurantFilter}
+                                value={
+                                    restaurantFilter
+                                }
                                 onChange={(e) =>
-                                    setRestaurantFilter(e.target.value)
+                                    setRestaurantFilter(
+                                        e.target
+                                            .value
+                                    )
                                 }
                             >
-                                <option value="all">All restaurants</option>
-                                {restaurants.map((restaurant) => (
-                                    <option
-                                        key={restaurant.id}
-                                        value={restaurant.id}
-                                    >
-                                        {restaurant.name}
-                                    </option>
-                                ))}
+                                <option value="all">
+                                    All restaurants
+                                </option>
+
+                                {restaurants.map(
+                                    (
+                                        restaurant
+                                    ) => (
+                                        <option
+                                            key={
+                                                restaurant.id
+                                            }
+                                            value={
+                                                restaurant.id
+                                            }
+                                        >
+                                            {
+                                                restaurant.name
+                                            }
+                                        </option>
+                                    )
+                                )}
                             </select>
                         </div>
 
                         <div className="filter-field">
-                            <label htmlFor="food-type-filter">Food type</label>
+
+                            <label htmlFor="food-type-filter">
+                                Food type
+                            </label>
+
                             <select
                                 id="food-type-filter"
-                                value={foodTypeFilter}
+                                value={
+                                    foodTypeFilter
+                                }
                                 onChange={(e) =>
-                                    setFoodTypeFilter(e.target.value)
+                                    setFoodTypeFilter(
+                                        e.target
+                                            .value
+                                    )
                                 }
                             >
-                                <option value="all">All</option>
-                                <option value="veg">Vegetarian</option>
-                                <option value="nonveg">Non-Vegetarian</option>
+                                <option value="all">
+                                    All
+                                </option>
+
+                                <option value="veg">
+                                    Vegetarian
+                                </option>
+
+                                <option value="nonveg">
+                                    Non-Vegetarian
+                                </option>
                             </select>
+
                         </div>
 
                         <div className="filter-field">
-                            <label htmlFor="min-price">Min price</label>
+
+                            <label htmlFor="min-price">
+                                Min price
+                            </label>
+
                             <input
                                 id="min-price"
                                 type="number"
@@ -1270,13 +1479,21 @@ function Home() {
                                 placeholder="₹ Min"
                                 value={minPrice}
                                 onChange={(e) =>
-                                    setMinPrice(e.target.value)
+                                    setMinPrice(
+                                        e.target
+                                            .value
+                                    )
                                 }
                             />
+
                         </div>
 
                         <div className="filter-field">
-                            <label htmlFor="max-price">Max price</label>
+
+                            <label htmlFor="max-price">
+                                Max price
+                            </label>
+
                             <input
                                 id="max-price"
                                 type="number"
@@ -1284,22 +1501,32 @@ function Home() {
                                 placeholder="₹ Max"
                                 value={maxPrice}
                                 onChange={(e) =>
-                                    setMaxPrice(e.target.value)
+                                    setMaxPrice(
+                                        e.target
+                                            .value
+                                    )
                                 }
                             />
+
                         </div>
+
                     </div>
+
+                    {/* FOOD CONTENT */}
 
                     {loading ? (
                         <div className="loading-state">
+
                             <div className="loader"></div>
 
                             <p>
                                 Loading menu...
                             </p>
+
                         </div>
                     ) : error ? (
                         <div className="error-state">
+
                             <h3>
                                 Something went
                                 wrong
@@ -1316,14 +1543,14 @@ function Home() {
                             >
                                 Try again
                             </button>
+
                         </div>
                     ) : filteredFood.length ===
                       0 ? (
                         <div className="empty-state">
+
                             <div className="empty-icon">
-                                {
-                                    Icons.search
-                                }
+                                {Icons.search}
                             </div>
 
                             <h3>
@@ -1334,14 +1561,24 @@ function Home() {
                                 Try changing your
                                 search or filters.
                             </p>
+
+                            <button
+                                onClick={
+                                    clearFilters
+                                }
+                            >
+                                Show all dishes
+                            </button>
+
                         </div>
                     ) : (
                         <div className="food-grid">
+
                             {filteredFood.map(
                                 (food) => {
                                     const image =
                                         getImageUrl(
-                                            food.image
+                                            food?.image
                                         );
 
                                     return (
@@ -1351,7 +1588,9 @@ function Home() {
                                                 food.id
                                             }
                                         >
+
                                             <div className="food-card-image">
+
                                                 {image ? (
                                                     <img
                                                         src={
@@ -1360,11 +1599,17 @@ function Home() {
                                                         alt={
                                                             food.name
                                                         }
+                                                        onError={(
+                                                            e
+                                                        ) => {
+                                                            e.currentTarget.style.display =
+                                                                "none";
+                                                        }}
                                                     />
                                                 ) : (
                                                     <div className="food-image-fallback">
                                                         <span>
-                                                            {food.name
+                                                            {food?.name
                                                                 ?.charAt(
                                                                     0
                                                                 )
@@ -1378,11 +1623,15 @@ function Home() {
                                                         VEG
                                                     </span>
                                                 )}
+
                                             </div>
 
                                             <div className="food-card-body">
+
                                                 <div className="food-card-top">
+
                                                     <div>
+
                                                         <h3>
                                                             {
                                                                 food.name
@@ -1394,6 +1643,24 @@ function Home() {
                                                                 food
                                                             )}
                                                         </span>
+
+                                                        {food.restaurant_name && (
+                                                            <small
+                                                                style={{
+                                                                    display:
+                                                                        "block",
+                                                                    marginTop:
+                                                                        "4px",
+                                                                    opacity:
+                                                                        0.7,
+                                                                }}
+                                                            >
+                                                                {
+                                                                    food.restaurant_name
+                                                                }
+                                                            </small>
+                                                        )}
+
                                                     </div>
 
                                                     <strong className="food-price">
@@ -1402,11 +1669,14 @@ function Home() {
                                                             food.price
                                                         }
                                                     </strong>
+
                                                 </div>
 
                                                 <p>
-                                                    {food.description ||
-                                                        "Freshly prepared and full of flavor."}
+                                                    {
+                                                        food.description ||
+                                                        "Freshly prepared and full of flavor."
+                                                    }
                                                 </p>
 
                                                 <button
@@ -1421,6 +1691,7 @@ function Home() {
                                                         food.id
                                                     }
                                                 >
+
                                                     <span>
                                                         {
                                                             Icons.plus
@@ -1431,24 +1702,33 @@ function Home() {
                                                     food.id
                                                         ? "Adding..."
                                                         : "Add to cart"}
+
                                                 </button>
+
                                             </div>
+
                                         </article>
                                     );
                                 }
                             )}
+
                         </div>
                     )}
+
                 </section>
+
             </main>
 
-            {/* ================================
+            {/* =================================================
                 FOOTER
-            ================================= */}
+            ================================================= */}
 
             <footer className="home-footer">
+
                 <div className="footer-inner">
+
                     <div className="footer-brand">
+
                         <div className="brand-mark">
                             {Icons.logo}
                         </div>
@@ -1456,6 +1736,7 @@ function Home() {
                         <strong>
                             foodie
                         </strong>
+
                     </div>
 
                     <p>
@@ -1464,10 +1745,13 @@ function Home() {
                     </p>
 
                     <span>
-                        © 2026 Foodie. ClumpCoder pvt. ltd. All
-                        rights reserved.
+                        © 2026 Foodie. ClumpCoder
+                        pvt. ltd. All rights
+                        reserved.
                     </span>
+
                 </div>
+
             </footer>
         </div>
     );
